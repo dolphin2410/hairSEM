@@ -1,7 +1,6 @@
 from cv_layers import ImageRenderer
 from input_manager import InputManager
 import geometrics
-from settings import X_SIZE, Y_SIZE
 
 class LineTracer:
     def __init__(self, renderer: ImageRenderer, input_manager: InputManager, start_point):
@@ -11,29 +10,34 @@ class LineTracer:
         self.end_point = None
         self.lock = False
 
-        input_manager.subscribe_lclick(lambda x, y: self.handle_click(x, y))
+        input_manager.subscribe_lclick(lambda x, y: self.initialize_points(x, y))  # subscribe click events
 
     def tick(self):
         if not self.lock and self.start_point is not None:
-            self.end_point = self.input_manager.pos
+            self.end_point = self.input_manager.cursor_pos  # creates a temporary end_point at the cursor's position
         
         self.render_line()
     
-    def handle_click(self, x, y):
-        if self.start_point is None:
+    def initialize_points(self, x, y):
+        """initializes the points when clicked"""
+        if self.lock:
+            return
+
+        if self.start_point is None:  # when choosing the first point
             self.start_point = (x, y)
-        elif not self.lock:
+        else:  # when choosing the second point
             self.end_point = (x, y)
             self.lock = True
 
     def render_line(self):
-        if self.start_point == self.end_point:
+        if self.start_point == self.end_point:  # This phrase catches two cases - one when two points are identical and one when both None
             return
         
         extended_ends = self.extend_line()
         self.renderer.push_task("draw_line", extended_ends)
     
     def extend_line(self):
+        """Returns intercepts of a linear graph determined by two points"""
         linear_graph = geometrics.LinearGraph(self.start_point, self.end_point)
 
         return linear_graph.boundary_intercepts()

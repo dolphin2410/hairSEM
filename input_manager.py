@@ -2,12 +2,12 @@ import cv2
 
 class InputManager:
     def __init__(self):
-        self.pos = None
+        self.cursor_pos = None
         self.lclick_watchers = []
 
     def on_mouse(self, event, x, y, flags, param):
         if event == cv2.EVENT_MOUSEMOVE:
-            self.pos = (x, y)
+            self.cursor_pos = (x, y)
 
         if event == cv2.EVENT_LBUTTONDOWN:
             for watcher in self.lclick_watchers:
