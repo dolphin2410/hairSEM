@@ -31,7 +31,6 @@ class LineTracer:
             return
         
         extended_ends = self.extend_line()
-        print(extended_ends)
         self.renderer.push_task("draw_line", extended_ends)
     
     def extend_line(self):
