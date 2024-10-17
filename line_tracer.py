@@ -1,4 +1,5 @@
 from cv_layers import ImageRenderer
+from events import HairSEMEvents
 from input_manager import InputManager
 import geometrics
 
