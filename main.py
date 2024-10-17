@@ -1,8 +1,7 @@
 import cv2
-from events import HairSEMEvents
-from input_manager import InputManager
-from line_tracer import LineTracer, LineTracerManager
-from cv_layers import ImageRenderer
+from input_manager import InputManager, HairSEMEvents
+from line_tracer import LineTracerManager
+from renderer import ImageRenderer
 from settings import X_SIZE, Y_SIZE
 
 raw_image_data = cv2.imread("./sem_images/SEM_4.jpg")

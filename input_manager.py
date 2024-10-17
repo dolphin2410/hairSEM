@@ -1,6 +1,10 @@
 import cv2
+from enum import Enum
 
-from events import HairSEMEvents
+class HairSEMEvents(Enum):
+    PASS = 0
+    EXIT = 1
+    REMOVE_PREVIOUS_LINE = 2
 
 class InputManager:
     def __init__(self):

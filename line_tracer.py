@@ -1,5 +1,4 @@
-from cv_layers import ImageRenderer
-from events import HairSEMEvents
+from renderer import ImageRenderer, RenderTasks
 from input_manager import InputManager
 import geometrics
 
@@ -35,7 +34,7 @@ class LineTracer:
             return
         
         extended_ends = self.extend_line()
-        self.renderer.push_task("draw_line", extended_ends)
+        self.renderer.push_task(RenderTasks.DRAW_LINE, extended_ends)
     
     def extend_line(self):
         """Returns intercepts of a linear graph determined by two points"""
