@@ -2,11 +2,12 @@ import cv2
 from input_manager import InputManager
 from line_tracer import LineTracer
 from cv_layers import ImageRenderer
+from settings import X_SIZE, Y_SIZE
 
 raw_image_data = cv2.imread("./sem_images/SEM_4.jpg")
 
-reversed_image_data = cv2.bitwise_not(raw_image_data)
-reversed_image_data = cv2.resize(reversed_image_data, (1000, 600))
+# reversed_image_data = cv2.bitwise_not(raw_image_data)
+reversed_image_data = cv2.resize(raw_image_data, (X_SIZE, Y_SIZE))
 
 renderer = ImageRenderer(reversed_image_data)
 input_manager = InputManager()
@@ -36,7 +37,7 @@ while True:
     key = cv2.waitKey(1)
     if key & 0xFF == ord('q'):
         break
-    
+
     if key & 0xFF == 27:
         old_line_tracers.pop()
 

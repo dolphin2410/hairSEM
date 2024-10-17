@@ -1,5 +1,7 @@
 from cv_layers import ImageRenderer
 from input_manager import InputManager
+import geometrics
+from settings import X_SIZE, Y_SIZE
 
 class LineTracer:
     def __init__(self, renderer: ImageRenderer, input_manager: InputManager, start_point):
@@ -25,4 +27,14 @@ class LineTracer:
             self.lock = True
 
     def render_line(self):
-        self.renderer.push_task("draw_line", [self.start_point, self.end_point])
+        if self.start_point is None or self.start_point == self.end_point:
+            return
+        
+        extended_ends = self.extend_line()
+        print(extended_ends)
+        self.renderer.push_task("draw_line", extended_ends)
+    
+    def extend_line(self):
+        linear_graph = geometrics.LinearGraph(self.start_point, self.end_point)
+
+        return linear_graph.boundary_intercepts((X_SIZE, Y_SIZE))
