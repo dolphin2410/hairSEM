@@ -17,7 +17,7 @@ class LinearGraph:
         
         return (a, b)
     
-    def boundary_intercepts(self, size):
+    def boundary_intercepts(self):
         a, b = self.linear_graph_coeffs()
         intercepts = []
 

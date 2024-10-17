@@ -36,4 +36,4 @@ class LineTracer:
     def extend_line(self):
         linear_graph = geometrics.LinearGraph(self.start_point, self.end_point)
 
-        return linear_graph.boundary_intercepts((X_SIZE, Y_SIZE))
+        return linear_graph.boundary_intercepts()
