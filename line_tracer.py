@@ -41,3 +41,24 @@ class LineTracer:
         linear_graph = geometrics.LinearGraph(self.start_point, self.end_point)
 
         return linear_graph.boundary_intercepts()
+    
+class LineTracerManager:
+    def __init__(self, renderer: ImageRenderer, input_manager: InputManager):
+        self.renderer = renderer
+        self.input_manager = input_manager
+        self.old_tracers = []
+        self.current_tracer = LineTracer(renderer, input_manager, None)
+
+    def tick(self):
+        for tracer in self.old_tracers:
+            tracer.tick()
+
+        self.current_tracer.tick()
+
+        if self.current_tracer.lock:
+            self.old_tracers.append(self.current_tracer)
+            self.current_tracer = LineTracer(self.renderer, self.input_manager, None)
+
+    def revert_last(self):
+        if len(self.old_tracers) > 0:
+            self.old_tracers.pop()

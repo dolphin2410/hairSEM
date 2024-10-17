@@ -1,6 +1,7 @@
 import cv2
+from events import HairSEMEvents
 from input_manager import InputManager
-from line_tracer import LineTracer
+from line_tracer import LineTracer, LineTracerManager
 from cv_layers import ImageRenderer
 from settings import X_SIZE, Y_SIZE
 
@@ -11,34 +12,24 @@ reversed_image_data = cv2.resize(raw_image_data, (X_SIZE, Y_SIZE))
 
 renderer = ImageRenderer(reversed_image_data)
 input_manager = InputManager()
-
-old_line_tracers = []
-line_tracer = LineTracer(renderer, input_manager, None)
+line_tracer_manager = LineTracerManager(renderer, input_manager)
 
 cv2.imshow('img_window', reversed_image_data)
 cv2.setMouseCallback('img_window', input_manager.on_mouse)
 
 while True:
     renderer.tick()
-
-    for old_tracer in old_line_tracers:
-        old_tracer.tick()
-
-    line_tracer.tick()
+    line_tracer_manager.tick()
 
     cv2.imshow('img_window', renderer.image)
     
     renderer.reset()
 
-    if line_tracer.lock:
-        old_line_tracers.append(line_tracer)
-        line_tracer = LineTracer(renderer, input_manager, None)
+    event = input_manager.get_keyevent()
 
-    key = cv2.waitKey(1)
-    if key & 0xFF == ord('q'):
+    if event == HairSEMEvents.EXIT:
         break
-
-    if key & 0xFF == 27:
-        old_line_tracers.pop()
+    if event == HairSEMEvents.REMOVE_PREVIOUS_LINE: # move this line
+        line_tracer_manager.revert_last()
 
 cv2.destroyAllWindows()
