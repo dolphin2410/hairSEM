@@ -27,7 +27,7 @@ class LineTracer:
             self.lock = True
 
     def render_line(self):
-        if self.start_point is None or self.start_point == self.end_point:
+        if self.start_point == self.end_point:
             return
         
         extended_ends = self.extend_line()
