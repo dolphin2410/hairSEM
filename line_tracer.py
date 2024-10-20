@@ -6,6 +6,7 @@ class LineTracer:
     def __init__(self, renderer: ImageRenderer, input_manager: InputManager):
         self.renderer = renderer
         self.input_manager = input_manager
+        self.start_point = None
         self.end_point = None
         self.lock = False
 
