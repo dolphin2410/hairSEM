@@ -20,24 +20,30 @@ class LineTracer:
     
     def initialize_points(self, x, y):
         """initializes the points when clicked"""
+        
         if self.lock:
             return
-
-        if self.start_point is None:  # when choosing the first point
+        
+        # when choosing the first point
+        if self.start_point is None:  
             self.start_point = (x, y)
-        else:  # when choosing the second point
+        
+        # when choosing the second point
+        else:  
             self.end_point = (x, y)
             self.lock = True
 
     def render_line(self):
-        if self.start_point == self.end_point:  # This phrase catches two cases - one when two points are identical and one when both None
+        # This phrase catches two cases - one when two points are identical and one when both None
+        if self.start_point == self.end_point:
             return
         
         extended_ends = self.extend_line()
         self.renderer.push_task(RenderTasks.DRAW_LINE, extended_ends)
-    
+
     def extend_line(self):
         """Returns intercepts of a linear graph determined by two points"""
+
         linear_graph = geometrics.LinearGraph(self.start_point, self.end_point)
 
         return linear_graph.boundary_intercepts()
