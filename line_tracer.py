@@ -3,10 +3,9 @@ from input_manager import InputManager
 import geometrics
 
 class LineTracer:
-    def __init__(self, renderer: ImageRenderer, input_manager: InputManager, start_point):
+    def __init__(self, renderer: ImageRenderer, input_manager: InputManager):
         self.renderer = renderer
         self.input_manager = input_manager
-        self.start_point = start_point
         self.end_point = None
         self.lock = False
 
@@ -20,7 +19,7 @@ class LineTracer:
     
     def initialize_points(self, x, y):
         """initializes the points when clicked"""
-        
+
         if self.lock:
             return
         
@@ -53,7 +52,7 @@ class LineTracerManager:
         self.renderer = renderer
         self.input_manager = input_manager
         self.old_tracers = []
-        self.current_tracer = LineTracer(renderer, input_manager, None)
+        self.current_tracer = LineTracer(renderer, input_manager)
 
     def tick(self):
         for tracer in self.old_tracers:
@@ -63,7 +62,7 @@ class LineTracerManager:
 
         if self.current_tracer.lock:
             self.old_tracers.append(self.current_tracer)
-            self.current_tracer = LineTracer(self.renderer, self.input_manager, None)
+            self.current_tracer = LineTracer(self.renderer, self.input_manager)
 
     def revert_last(self):
         if len(self.old_tracers) > 0:
