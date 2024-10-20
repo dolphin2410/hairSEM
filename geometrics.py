@@ -21,11 +21,13 @@ class LinearGraph:
         return (a, b)
     
     def boundary_intercepts(self):
+        """Returns the intercepts of the LinearGraph within the given boundary as points"""
+
         a, b = self.linear_graph_coeffs()
         intercepts = []
 
         if b <= 0: 
-            intercepts.append((int(1/a), 0)) # a > 0 if the line exists inside the box
+            intercepts.append((int(1/a), 0))
         else:
             intercepts.append((0, int(1/b)))
         
