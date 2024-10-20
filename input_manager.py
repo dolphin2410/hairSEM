@@ -6,6 +6,9 @@ class HairSEMEvents(Enum):
     EXIT = 1
     REMOVE_PREVIOUS_LINE = 2
 
+class SubscriptionType(Enum):
+    LEFT_CLICK = 0
+
 class InputManager:
     def __init__(self):
         self.cursor_pos = None
@@ -18,13 +21,15 @@ class InputManager:
         if event == cv2.EVENT_LBUTTONDOWN:
             for watcher in self.lclick_watchers:
                 watcher(x, y)
+
+    def subscribe(self, subscription_type: SubscriptionType, f):
+        if subscription_type == SubscriptionType.LEFT_CLICK:
+            self.lclick_watchers.append(f)
+            return len(self.lclick_watchers) - 1
     
-    def subscribe_lclick(self, f):
-        self.lclick_watchers.append(f)
-        return len(self.lclick_watchers) - 1
-    
-    def unsubscribe_lclick(self, idx):
-        self.lclick_watchers.pop(idx)
+    def unsubscribe(self, subscription_type: SubscriptionType, idx):
+        if subscription_type == SubscriptionType.LEFT_CLICK:
+            self.lclick_watchers.pop(idx)
 
     def get_keyevent(self):
         key = cv2.waitKey(1)

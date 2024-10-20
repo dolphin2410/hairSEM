@@ -1,5 +1,5 @@
 from renderer import ImageRenderer, RenderTasks
-from input_manager import InputManager
+from input_manager import InputManager, SubscriptionType
 import geometrics
 
 class LineTracer:
@@ -10,7 +10,7 @@ class LineTracer:
         self.end_point = None
         self.lock = False
 
-        input_manager.subscribe_lclick(lambda x, y: self.initialize_points(x, y))  # subscribe click events
+        input_manager.subscribe(SubscriptionType.LEFT_CLICK, self.on_click)  # subscribe click events
 
     def tick(self):
         if not self.lock and self.start_point is not None:
@@ -18,7 +18,7 @@ class LineTracer:
         
         self.render_line()
     
-    def initialize_points(self, x, y):
+    def on_click(self, x, y):
         """initializes the points when clicked"""
 
         if self.lock:
