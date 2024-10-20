@@ -19,9 +19,10 @@ class ImageRenderer:
             self.image = cv2.line(self.image, payload[0], payload[1], 255)
 
     def tick(self):
+        """Reset and Tick"""
+
+        self.image = np.copy(self.raw_image)
         while len(self.tasks) > 0:
             task_type, payload = self.tasks.pop(0)
             self.handle_task(task_type, payload)
         
-    def reset(self):
-        self.image = np.copy(self.raw_image)
