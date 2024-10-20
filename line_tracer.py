@@ -12,7 +12,7 @@ class LineTracer:
 
         input_manager.subscribe(SubscriptionType.LEFT_CLICK, self.on_click)  # subscribe click events
 
-    def tick(self):
+    def update(self):
         if not self.lock and self.start_point is not None:
             self.end_point = self.input_manager.cursor_pos  # creates a temporary end_point at the cursor's position
         
@@ -55,11 +55,11 @@ class LineTracerManager:
         self.old_tracers = []
         self.current_tracer = LineTracer(renderer, input_manager)
 
-    def tick(self):
+    def update(self):
         for tracer in self.old_tracers:
-            tracer.tick()
+            tracer.update()
 
-        self.current_tracer.tick()
+        self.current_tracer.update()
 
         if self.current_tracer.lock:
             self.old_tracers.append(self.current_tracer)

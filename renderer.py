@@ -18,8 +18,8 @@ class ImageRenderer:
         if task_type == RenderTasks.DRAW_LINE:
             self.image = cv2.line(self.image, payload[0], payload[1], 255)
 
-    def tick(self):
-        """Reset and Tick"""
+    def update(self):
+        """Reset and Update"""
 
         self.image = np.copy(self.raw_image)
         while len(self.tasks) > 0:

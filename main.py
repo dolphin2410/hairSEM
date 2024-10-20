@@ -15,8 +15,8 @@ cv2.imshow('img_window', resized_image_data)
 cv2.setMouseCallback('img_window', input_manager.on_mouse)
 
 while True:
-    renderer.tick()
-    line_tracer_manager.tick()
+    renderer.update()
+    line_tracer_manager.update()
 
     cv2.imshow('img_window', renderer.image)
 
