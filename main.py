@@ -4,7 +4,7 @@ from line_tracer import LineTracerManager
 from renderer import ImageRenderer
 from settings import X_SIZE, Y_SIZE
 
-raw_image_data = cv2.imread("./sem_images/SEM_4.jpg")
+raw_image_data = cv2.imread("./sem_images/images/SEM_4.jpg")
 resized_image_data = cv2.resize(raw_image_data, (X_SIZE, Y_SIZE))
 
 renderer = ImageRenderer(resized_image_data)
