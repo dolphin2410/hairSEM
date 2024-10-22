@@ -37,5 +37,9 @@ def extract_masks(file_path):
 
     return maskified
 
-images, masks = load_directory("sem_images")
-extract_masks(masks[2])
+if __name__ == "__main__":
+    # For debugging purposes
+    images, masks = load_directory("sem_images")
+
+    for mask in masks:
+        extract_masks(mask)
