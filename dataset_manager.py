@@ -20,7 +20,6 @@ def load_directory(root_dir):
 
 def extract_masks(file_path):
     print(file_path)
-    plt.figure(figsize=(15, 15))
     mask_image = cv2.imread(file_path)
     blues = mask_image[:, :, 0].copy().astype("int16")
     greens = mask_image[:, :, 1].copy().astype("int16")
@@ -31,9 +30,9 @@ def extract_masks(file_path):
 
     if __name__ == "__main__":
         # For debugging purposes
+        plt.figure(figsize=(15, 15))
         plt.imshow(maskified)
         plt.colorbar()
-        plt.show()
 
     return maskified
 
@@ -43,3 +42,6 @@ if __name__ == "__main__":
 
     for mask in masks:
         extract_masks(mask)
+
+    plt.show()
+    
