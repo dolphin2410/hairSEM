@@ -1,7 +1,8 @@
+import random
 import numpy as np
 from renderer import ImageRenderer, RenderTasks
 from input_manager import InputManager, SubscriptionType
-from settings import CROP_IMAGE_SIZE
+from settings import CROP_IMAGE_SIZE, X_SIZE, Y_SIZE
 import uuid
 import cv2
 
@@ -44,8 +45,12 @@ class CropManager:
         self.renderer.push_task(RenderTasks.DRAW_LINE, [p4, self.start_point])
 
     def save(self, images):
-        if not self.lock:
-            return
+        if self.start_point is None:
+            for i in range(500):
+                x_rand = int(random.random() * (X_SIZE - CROP_IMAGE_SIZE - 1))
+                y_rand = int(random.random() * (Y_SIZE - CROP_IMAGE_SIZE - 1))
+                self.start_point = x_rand, y_rand
+                self.save(images)
 
         x, y = self.start_point
         cropped = []

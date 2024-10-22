@@ -5,8 +5,8 @@ from line_tracer import LineTracerManager
 from renderer import ImageRenderer
 from settings import X_SIZE, Y_SIZE
 
-raw_image_data = cv2.imread("./sem_images/images/SEM_4.jpg")
-raw_mask_data = cv2.imread("./sem_images/segmentation-masks/SEM_4.jpg")
+raw_image_data = cv2.imread("./sem_images/images/SEM_D_PRESSURE.jpg")
+raw_mask_data = cv2.imread("./sem_images/segmentation-masks/SEM_D_PRESSURE.jpg")
 
 resized_image_data = cv2.resize(raw_image_data, (X_SIZE, Y_SIZE))
 resized_mask_data = cv2.resize(raw_mask_data, (X_SIZE, Y_SIZE))
@@ -22,11 +22,11 @@ cv2.imshow('img_window', resized_image_data)
 cv2.setMouseCallback('img_window', input_manager.on_mouse)
 
 while True:
-    renderer.update()
+    mask_renderer.update()
     # line_tracer_manager.update()
     crop_manager.update()
 
-    cv2.imshow('img_window', renderer.image)
+    cv2.imshow('img_window', mask_renderer.image)
 
     event = input_manager.get_keyevent()
     if event == HairSEMEvents.EXIT:
