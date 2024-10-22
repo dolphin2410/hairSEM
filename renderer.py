@@ -1,5 +1,6 @@
 from enum import Enum
 import cv2
+from matplotlib import pyplot as plt
 import numpy as np
 
 class RenderTasks(Enum):
@@ -25,4 +26,3 @@ class ImageRenderer:
         while len(self.tasks) > 0:
             task_type, payload = self.tasks.pop(0)
             self.handle_task(task_type, payload)
-        

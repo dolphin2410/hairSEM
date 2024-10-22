@@ -5,6 +5,7 @@ class HairSEMEvents(Enum):
     PASS = 0
     EXIT = 1
     REMOVE_PREVIOUS_LINE = 2
+    SAVE_CROPPED_IMAGE = 3
 
 class SubscriptionType(Enum):
     LEFT_CLICK = 0
@@ -38,5 +39,8 @@ class InputManager:
 
         if key & 0xFF == 27:
             return HairSEMEvents.REMOVE_PREVIOUS_LINE
+        
+        if key & 0xFF == ord('s'):
+            return HairSEMEvents.SAVE_CROPPED_IMAGE
         
         return HairSEMEvents.PASS
