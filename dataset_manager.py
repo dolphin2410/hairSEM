@@ -1,16 +1,36 @@
+from enum import Enum
 import os
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
-from settings import LIMIT_DATASET_LOAD
+from settings import LIMIT_DATASET_LOAD, TRAIN_TEST_RATIO
 
 BLUISHNESS_THRESHOLD = 25  # TODO: This number is experimentally obtained
 
-def extract_masks(file_path):
-  print(file_path)
-  mask_image = cv2.imread(file_path)
+class ImageType(Enum):
+  IMAGE = 1  # Raw SEM images
+  MASK_IMAGE = 2  # Images with blue lines added on raw SEM images.
+  MASK = 4  # Masks, extracted from mask_images, classified into 0s and 1s
+
+  def from_bitmask(bitmask):
+    types = []
+
+    if bitmask & 0b001:
+      types.append(ImageType.IMAGE)
+    if bitmask & 0b010:
+      types.append(ImageType.MASK_IMAGE)
+    if bitmask & 0b100:
+      types.append(ImageType.MASK)
+
+    return types
+
+def extract_masks(mask_image_path):
+  """Function that extracts masks from mask_images"""
+  
+  mask_image = cv2.imread(mask_image_path)
+
   blues = mask_image[:, :, 0].copy().astype("int16")
   greens = mask_image[:, :, 1].copy().astype("int16")
   reds = mask_image[:, :, 2].copy().astype("int16")
@@ -20,47 +40,50 @@ def extract_masks(file_path):
   
   return maskified
 
-def load_directory(root_dir):
-  image_paths = []
-  mask_image_paths = []
-  mask_paths = []
-
-  files = os.listdir(root_dir + "/images")
-  for file in files:
-    image_path = os.path.join(root_dir + "/images/", file)
-    mask_image_path = os.path.join(root_dir + "/segmentation-masks/", file)
-    mask_path = os.path.join(root_dir + "/masks/", file)
-    
-    image_paths.append(image_path)
-    mask_image_paths.append(mask_image_path)
-    mask_paths.append(mask_path)
-
-  return np.array(image_paths), np.array(mask_paths)
-
-def load_images(image_paths, limit):
-  images = []
-  counter = 0
-  for path in image_paths:
-    if counter == limit:
-      break
-    counter += 1
-    images.append(cv2.imread(path, cv2.IMREAD_GRAYSCALE))
-  return np.array(images)
-
-def split_loaded_images(data_list, ratio):
-  test_max_index = int(len(data_list) * ratio) + 1
-  return data_list[:test_max_index], data_list[test_max_index:]
-
 def create_masks_from_image(raw_images):
   images, masks = raw_images
 
   for mask in masks:
     cv2.imwrite(mask.replace("/segmentation-masks/", "/masks/"), extract_masks(mask))
 
+def load_image_paths(dataset_directory, bitmask):
+  """image paths from the given directory, returns only the types that were specified in the request bitmask"""
+  
+  requested_types = ImageType.from_bitmask(bitmask)
+  paths = [[], [], []]
+
+  files = os.listdir(dataset_directory + "/images")
+
+  for file in files:
+    image_path = os.path.join(dataset_directory + "/images/", file)
+    mask_image_path = os.path.join(dataset_directory + "/segmentation-masks/", file)
+    mask_path = os.path.join(dataset_directory + "/masks/", file)
+
+    if ImageType.IMAGE in requested_types:
+      paths[0].append(image_path)
+    if ImageType.MASK_IMAGE in requested_types:
+      paths[1].append(mask_image_path)
+    if ImageType.MASK in requested_types:
+      paths[2].append(mask_path)
+
+  return np.array(list(filter(lambda x: len(x) != 0, paths)))
+
+def load_images(image_paths):
+  return np.array(list(map(lambda path: cv2.imread(path, cv2.IMREAD_GRAYSCALE), image_paths[:LIMIT_DATASET_LOAD + 1])))
+
 def normalize_image(images):
   return images.astype("float32") / 255.0
 
-def train_test_split():
-  images, masks = map(lambda image_paths: load_images(image_paths, LIMIT_DATASET_LOAD), load_directory("sem_cropped_images"))
-  test_images, train_images = split_loaded_images(normalize_image(images), 0.3)
-  test_masks, train_masks = split_loaded_images(masks, 0.3)
+def split_data_with_ratio(data_list, ratio):
+  test_max_index = int(len(data_list) * ratio)
+  return data_list[:test_max_index + 1], data_list[test_max_index + 1:]
+
+def load_dataset():
+  images, masks = map(load_images, load_image_paths("sem_cropped_images", ImageType.IMAGE.value + ImageType.MASK.value))
+  test_images, train_images = split_data_with_ratio(normalize_image(images), TRAIN_TEST_RATIO)
+  test_masks, train_masks = split_data_with_ratio(masks, TRAIN_TEST_RATIO)
+  return test_images, train_images, test_masks, train_masks
+
+if __name__ == "__main__":
+  # For debugging purposes
+  test_images, train_images, test_masks, train_masks = load_dataset()
