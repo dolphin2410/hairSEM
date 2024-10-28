@@ -35,7 +35,7 @@ def extract_masks(mask_image_path):
   greens = mask_image[:, :, 1].copy().astype("int16")
   reds = mask_image[:, :, 2].copy().astype("int16")
 
-  bluishness = np.vectorize(lambda x: 0 if x < 0 else x)((blues - greens - reds))
+  bluishness = np.vectorize(lambda x: 0 if x < 0 else x)(blues - greens - reds)
   maskified = np.vectorize(lambda x: 1 if x > BLUISHNESS_THRESHOLD else 0)(bluishness)
   
   return maskified
@@ -69,7 +69,7 @@ def load_image_paths(dataset_directory, bitmask):
   return np.array(list(filter(lambda x: len(x) != 0, paths)))
 
 def load_images(image_paths):
-  return np.array(list(map(lambda path: cv2.imread(path, cv2.IMREAD_GRAYSCALE), image_paths[:LIMIT_DATASET_LOAD + 1])))
+  return np.array(list(map(lambda path: cv2.imread(path), image_paths[:LIMIT_DATASET_LOAD + 1])))
 
 def normalize_image(images):
   return images.astype("float32") / 255.0
