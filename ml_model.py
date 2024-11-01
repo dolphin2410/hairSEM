@@ -24,6 +24,7 @@ import tensorflow as tf
 from IPython.display import clear_output
 from tensorflow_examples.tensorflow_examples.models.pix2pix import pix2pix
 from dataset_manager import load_dataset
+import mask_analysis
 
 test_images, train_images, test_masks, train_masks = load_dataset()
 
@@ -47,7 +48,7 @@ class DisplayCallback(tf.keras.callbacks.Callback):
         title = ['Input Image', 'True Mask', 'Predicted Mask']
         display_list = [sample_image, sample_mask * 255, coerce_image(np.array(model.predict(np.array([sample_image]))[0]))]
 
-        if epoch % 20 == 0:
+        if True or epoch % 20 == 0:
             plt.figure(figsize=(15, 15))
             for i in range(3):
                 plt.subplot(1, 3, i+1)
@@ -109,22 +110,35 @@ def unet_model(output_channels = 3): # output_channels : number of classes
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
-global model
-model = unet_model()
-model.compile(optimizer='adam',
-              loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
+def train_model():
+    global model
+    model = unet_model()
+    model.compile(optimizer='adam',
+                loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
+                metrics=['accuracy'])
 
-model_history = model.fit(train_images, train_masks, epochs=200, batch_size=64, validation_data=(test_images, test_masks), callbacks=[DisplayCallback()])
-loss = model_history.history['loss']
-val_loss = model_history.history['val_loss']
+    model_history = model.fit(train_images, train_masks, epochs=200, batch_size=64, validation_data=(test_images, test_masks), callbacks=[DisplayCallback()])
+    loss = model_history.history['loss']
+    val_loss = model_history.history['val_loss']
 
-plt.figure()
-plt.plot(model_history.epoch, loss, 'r', label='Training loss')
-plt.plot(model_history.epoch, val_loss, 'bo', label='Validation loss')
-plt.title('Training and Validation Loss')
-plt.xlabel('Epoch')
-plt.ylabel('Loss Value')
-plt.ylim([0, 1])
-plt.legend()
-plt.show()
+    plt.figure()
+    plt.plot(model_history.epoch, loss, 'r', label='Training loss')
+    plt.plot(model_history.epoch, val_loss, 'bo', label='Validation loss')
+    plt.title('Training and Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss Value')
+    plt.ylim([0, 1])
+    plt.legend()
+    plt.show()
+
+def load_model():
+    model = tf.keras.models.load_model("models/epoch87-372f46e8-3f33-4a2d-b854-1e9b953c0cf9.keras")
+
+    new_image = coerce_image(np.array(model.predict(np.array([sample_image]))[0]))
+    new_image = mask_analysis.flatten_predicted_mask(new_image)
+
+    plt.figure()
+    plt.imshow(new_image)
+    plt.show()
+
+load_model()
