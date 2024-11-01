@@ -85,6 +85,7 @@ def load_image_paths(dataset_directory, bitmask):
   return np.array(list(filter(lambda x: len(x) != 0, paths)))
 
 def load_images(image_paths):
+  # TODO: why not make this random
   return np.array(list(map(lambda path: cv2.imread(path), image_paths[:LIMIT_DATASET_LOAD + 1])))
 
 def normalize_image(images):
