@@ -30,15 +30,6 @@ test_images, train_images, test_masks, train_masks = load_dataset()
 
 sample_image, sample_mask = train_images[2], train_masks[2]
 
-print(test_images.shape)
-  
-def coerce_image(image: np.ndarray):
-   max, min = image.max(), image.min()
-
-   coerced_image = (image - min) * 255 / (max - min)
-
-   return np.vectorize(lambda x: int(x))(coerced_image)
-
 class DisplayCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         clear_output(wait=True)
@@ -46,7 +37,7 @@ class DisplayCallback(tf.keras.callbacks.Callback):
         global model
 
         title = ['Input Image', 'True Mask', 'Predicted Mask']
-        display_list = [sample_image, sample_mask * 255, coerce_image(np.array(model.predict(np.array([sample_image]))[0]))]
+        display_list = [sample_image, sample_mask * 255, mask_analysis.coerce_image(np.array(model.predict(np.array([sample_image]))[0]))]
 
         if True or epoch % 20 == 0:
             plt.figure(figsize=(15, 15))
@@ -131,14 +122,12 @@ def train_model():
     plt.legend()
     plt.show()
 
-def load_model():
+def get_predicted_mask(raw_image):
     model = tf.keras.models.load_model("models/epoch87-372f46e8-3f33-4a2d-b854-1e9b953c0cf9.keras")
 
-    new_image = coerce_image(np.array(model.predict(np.array([sample_image]))[0]))
+    new_image = mask_analysis.coerce_image(np.array(model.predict(np.array([raw_image]))[0]))
     new_image = mask_analysis.flatten_predicted_mask(new_image)
+    # chunks = mask_analysis.chunkify(new_image)
+    # mask_analysis.mask_linear_regression(100.0, chunks[3])
 
-    plt.figure()
-    plt.imshow(new_image)
-    plt.show()
-
-load_model()
+    return new_image

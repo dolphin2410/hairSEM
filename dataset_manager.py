@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
+from ml_model import get_predicted_mask
 from settings import LIMIT_DATASET_LOAD, TRAIN_TEST_RATIO
 
 BLUISHNESS_THRESHOLD = 25  # TODO: This number is experimentally obtained
@@ -100,6 +101,18 @@ def load_dataset():
   test_images, train_images = split_data_with_ratio(normalize_image(images), TRAIN_TEST_RATIO)
   test_masks, train_masks = split_data_with_ratio(masks, TRAIN_TEST_RATIO)
   return test_images, train_images, test_masks, train_masks
+
+def get_original_samples(image: np.ndarray):
+  list_masks = []
+  x_shape, y_shape = image.shape
+  for x in range(0, x_shape, 128):
+    for y in range(0, y_shape, 128):
+      cropped_image = image[y:y+128, x:x+128]
+      predicted_mask = get_predicted_mask(cropped_image)
+      list_masks.append(predicted_mask)
+  
+  return predicted_mask
+
 
 if __name__ == "__main__":
   # For debugging purposes
