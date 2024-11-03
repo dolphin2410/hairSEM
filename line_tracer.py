@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from renderer import ImageRenderer, RenderTasks
-from input_manager import InputManager, SubscriptionType
+from input_manager import HairSEMEvents, InputManager, SubscriptionType
 import geometrics
 
 class LineTracer:
@@ -26,7 +26,8 @@ class LineTracer:
         self.end_point = None
         self.lock = False
 
-        input_manager.subscribe(SubscriptionType.LEFT_CLICK, self.on_click)  # subscribe click events
+    def initialize(self):
+        self.subscription_id = self.input_manager.subscribe(SubscriptionType.LEFT_CLICK, self.on_click)
 
     def update(self):
         if not self.lock and self.start_point is not None:
@@ -48,6 +49,7 @@ class LineTracer:
         else:  
             self.end_point = (x, y)
             self.lock = True
+            self.input_manager.unsubscribe(SubscriptionType.LEFT_CLICK, self.subscription_id)
 
     def render_line(self):
         # This phrase catches two cases - one when two points are identical and one when both None
@@ -71,7 +73,21 @@ class LineTracerManager:
         self.old_tracers = []
         self.current_tracer = LineTracer(renderer, input_manager)
 
+    def initialize(self):
+        self.current_tracer.initialize()
+
+    def handle_inputs(self):
+        input_ev = self.input_manager.current_event
+        if input_ev == HairSEMEvents.REMOVE_PREVIOUS_LINE:
+            self.revert_last()
+
+    def cleanup(self):
+        self.old_tracers = []
+        self.current_tracer = LineTracer(self.renderer, self.input_manager)
+
     def update(self):
+        self.handle_inputs()
+            
         for tracer in self.old_tracers:
             tracer.update()
 
@@ -80,6 +96,7 @@ class LineTracerManager:
         if self.current_tracer.lock:
             self.old_tracers.append(self.current_tracer)
             self.current_tracer = LineTracer(self.renderer, self.input_manager)
+            self.current_tracer.initialize()
 
     def revert_last(self):
         if len(self.old_tracers) > 0:

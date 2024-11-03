@@ -17,7 +17,7 @@
 import random
 import numpy as np
 from renderer import ImageRenderer, RenderTasks
-from input_manager import InputManager, SubscriptionType
+from input_manager import HairSEMEvents, InputManager, SubscriptionType
 from settings import CROP_IMAGE_SIZE, X_SIZE, Y_SIZE
 import uuid
 import cv2
@@ -29,9 +29,21 @@ class CropManager:
         self.start_point = None
         self.lock = False
 
-        input_manager.subscribe(SubscriptionType.LEFT_CLICK, self.on_click)  # subscribe click events
+    def initialize(self):
+        self.input_manager.subscribe(SubscriptionType.LEFT_CLICK, self.on_click)
+
+    def handle_inputs(self):
+        input_ev = self.input_manager.current_event
+        if input_ev == HairSEMEvents.SAVE_CROPPED_IMAGE:
+            self.save([self.renderer.raw_image.copy(), self.mask_image.copy()])
+            self.input_manager.current_event == HairSEMEvents.EXIT
+
+    def cleanup(self):
+        self.start_point = None
 
     def update(self):
+        self.handle_inputs()
+
         if self.start_point is None:
             return
         

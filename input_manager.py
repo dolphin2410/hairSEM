@@ -22,6 +22,8 @@ class HairSEMEvents(Enum):
     EXIT = 1
     REMOVE_PREVIOUS_LINE = 2
     SAVE_CROPPED_IMAGE = 3
+    SWITCH_MODE = 4
+    SWITCH_IMAGE = 5
 
 class SubscriptionType(Enum):
     LEFT_CLICK = 0
@@ -30,6 +32,7 @@ class InputManager:
     def __init__(self):
         self.cursor_pos = None
         self.lclick_watchers = []
+        self.current_event = HairSEMEvents.PASS
 
     def on_mouse(self, event, x, y, flags, param):
         if event == cv2.EVENT_MOUSEMOVE:
@@ -48,15 +51,18 @@ class InputManager:
         if subscription_type == SubscriptionType.LEFT_CLICK:
             self.lclick_watchers.pop(idx)
 
-    def get_keyevent(self):
+    def update(self):
         key = cv2.waitKey(1)
-        if key & 0xFF == ord('q'):
-            return HairSEMEvents.EXIT
 
-        if key & 0xFF == 27:
-            return HairSEMEvents.REMOVE_PREVIOUS_LINE
-        
-        if key & 0xFF == ord('s'):
-            return HairSEMEvents.SAVE_CROPPED_IMAGE
-        
-        return HairSEMEvents.PASS
+        if key & 0xFF == ord('q'):
+            self.current_event = HairSEMEvents.EXIT
+        elif key & 0xFF == 27:
+            self.current_event = HairSEMEvents.REMOVE_PREVIOUS_LINE
+        elif key & 0xFF == ord('s'):
+            self.current_event = HairSEMEvents.SAVE_CROPPED_IMAGE
+        elif key & 0xFF == ord('m'):
+            self.current_event = HairSEMEvents.SWITCH_MODE
+        elif key & 0xFF == ord('i'):
+            self.current_event = HairSEMEvents.SWITCH_IMAGE
+        else:
+            self.current_event = HairSEMEvents.PASS
