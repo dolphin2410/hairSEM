@@ -1,4 +1,4 @@
-#    hairSEM aims to quantify hair damage based on a SEM image
+#    hairSEM aims to quantify hair damage using a SEM image
 #    Copyright (C) 2024 dolphin2410
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@ from enum import Enum
 from crop_manager import CropManager
 from line_tracer import LineTracerManager
 from renderer import ImageRenderer, RenderTasks
-from input_manager import HairSEMEvents, InputManager, SubscriptionType
+from input_manager import HairSEMEvents, InputManager
 
 class ApplicationMode(Enum):
     LINE_TRACING = 0

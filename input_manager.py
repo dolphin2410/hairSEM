@@ -1,4 +1,4 @@
-#    hairSEM aims to quantify hair damage based on a SEM image
+#    hairSEM aims to quantify hair damage using a SEM image
 #    Copyright (C) 2024 dolphin2410
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@ class HairSEMEvents(Enum):
     SAVE_CROPPED_IMAGE = 3
     SWITCH_MODE = 4
     SWITCH_IMAGE = 5
+    ANALYZE = 6
 
 class SubscriptionType(Enum):
     LEFT_CLICK = 0
@@ -64,5 +65,7 @@ class InputManager:
             self.current_event = HairSEMEvents.SWITCH_MODE
         elif key & 0xFF == ord('i'):
             self.current_event = HairSEMEvents.SWITCH_IMAGE
+        elif key & 0xFF == ord('a'):
+            self.current_event = HairSEMEvents.ANALYZE
         else:
             self.current_event = HairSEMEvents.PASS
