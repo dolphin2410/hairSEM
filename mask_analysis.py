@@ -53,31 +53,20 @@ def cost_function(gradient, X, Y, bias, N):
     return loss
 
 def mask_linear_regression(gradient, pixels):
-    bias = tf.Variable(-5798.0, name = "b")
+    bias = tf.Variable(0.0, name = "b")
     x = tf.constant(list(map(lambda x: float(x[0]), pixels)))
     y = tf.constant(list(map(lambda x: float(x[1]), pixels)))
 
-    def train(learning_rate=0.01):
+    def train(learning_rate=0.03):
         with tf.GradientTape() as t:
             current_loss = cost_function(gradient, x, y, bias, len(pixels))
             dBias = t.gradient(current_loss, [bias])[0]
 
         bias.assign_sub(learning_rate * dBias)
 
-    for epoch in range(1000):
+    for epoch in range(200):
         train()
 
     loss = cost_function(gradient, x, y, bias, len(pixels))
     
-    print(gradient)
-    print(bias)
-    print(loss)
-
-    x, y = [list(l) for l in zip(*pixels)]
-
-    plt.figure()
-    plt.xlim(0, 128)
-    plt.ylim(128, 0)
-    plt.plot([0, 128], [float(bias.numpy()), float(gradient * 128 + bias.numpy())], marker='o')
-    plt.scatter(x, y)
-    plt.show()
+    return float(loss.numpy() * len(pixels))

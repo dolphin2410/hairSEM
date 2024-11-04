@@ -63,6 +63,6 @@ class ApplicationManager:
             self.line_tracer_manager.update()
         elif self.mode == ApplicationMode.CROPPING:
             mode_text = "cropping"
-            self.crop_manager.update()        
+            self.crop_manager.update()    
 
         self.renderer.push_task(RenderTasks.WRITE_TEXT, [f"mode : {mode_text}", (10, 30)])

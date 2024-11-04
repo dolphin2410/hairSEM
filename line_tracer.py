@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import ml_model
 from renderer import ImageRenderer, RenderTasks
 from input_manager import HairSEMEvents, InputManager, SubscriptionType
 import geometrics
@@ -62,9 +63,9 @@ class LineTracer:
     def extend_line(self):
         """Returns intercepts of a linear graph determined by two points"""
 
-        linear_graph = geometrics.LinearGraph(self.start_point, self.end_point)
+        self.linear_graph = geometrics.LinearGraph(self.start_point, self.end_point)
 
-        return linear_graph.boundary_intercepts()
+        return self.linear_graph.boundary_intercepts()
     
 class LineTracerManager:
     def __init__(self, renderer: ImageRenderer, input_manager: InputManager):
@@ -80,6 +81,11 @@ class LineTracerManager:
         input_ev = self.input_manager.current_event
         if input_ev == HairSEMEvents.REMOVE_PREVIOUS_LINE:
             self.revert_last()
+        elif input_ev == HairSEMEvents.ANALYZE:
+            if len(self.old_tracers) == 0:
+                raise ValueError("AHH No Tracers!") # TODO this isn't the best way i guess?
+            sum, chunk_size, pixels = ml_model.analyze_original_image(self.old_tracers[0].linear_graph.perpendicular_gradient(), self.renderer.raw_image.copy())
+            print(sum, chunk_size, pixels)
 
     def cleanup(self):
         self.old_tracers = []

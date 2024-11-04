@@ -127,7 +127,27 @@ def get_predicted_mask(raw_image):
 
     new_image = mask_analysis.coerce_image(np.array(model.predict(np.array([raw_image]))[0]))
     new_image = mask_analysis.flatten_predicted_mask(new_image)
-    # chunks = mask_analysis.chunkify(new_image)
-    # mask_analysis.mask_linear_regression(100.0, chunks[3])
 
     return new_image
+
+def analyze_original_image(target_gradient, image: np.ndarray):
+  total_loss = 0
+  chunk_size = 0
+  pixels_size = 0
+  y_size, x_size, _ = image.shape
+  for x in range(0, x_size, 128):
+    for y in range(0, y_size, 128):
+        if x + 128 > x_size or y + 128 > y_size:
+            continue
+      
+        cropped_image = image[y:y+128, x:x+128]
+        predicted_mask = get_predicted_mask(cropped_image)
+      
+        chunks = mask_analysis.chunkify(predicted_mask)
+
+        chunk_size += len(chunks)
+        for chunk in chunks:
+            pixels_size += len(chunk)
+            total_loss += mask_analysis.mask_linear_regression(target_gradient, chunk)
+
+  return total_loss, chunk_size, pixels_size

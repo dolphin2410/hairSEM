@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import math
 from settings import X_SIZE, Y_SIZE
 
 
@@ -24,6 +25,11 @@ class LinearGraph:
         
         self.p1 = p1
         self.p2 = p2
+
+        if p1[0] == p2[0]:
+            self.gradient = math.inf
+        else:
+            self.gradient = (p1[1] - p2[1]) / (p1[0] - p2[0])
 
     def linear_graph_coeffs(self):
         """this function takes two points as an input and returns a, b values of the equation ax + by = 1"""
@@ -54,6 +60,11 @@ class LinearGraph:
 
         return list(set(intercepts))
 
+    def perpendicular_gradient(self):
+        if self.gradient == 0:
+            return 1000 # i wish this would be enough?
+        else:
+            return - 1.0 / self.gradient
         
         
         
