@@ -47,25 +47,31 @@ def chunkify(image: np.ndarray):
 
 @tf.function
 def cost_function(gradient, X, Y, bias, N):
-    pred = tf.scalar_mul(gradient, X) + bias
-    loss = tf.reduce_sum((pred - Y) ** 2) / N
+    pred = tf.add(tf.multiply(X, gradient), bias)
+    offset = tf.subtract(pred, Y)
+    loss = tf.reduce_sum(tf.multiply(offset, offset))
     
-    return loss
+    return tf.divide(loss, N)
 
 def mask_linear_regression(gradient, pixels):
     bias = tf.Variable(0.0, name = "b")
+    gradient_tensor = tf.constant(gradient)
+    N = tf.constant(float(len(pixels)))
     x = tf.constant(list(map(lambda x: float(x[0]), pixels)))
     y = tf.constant(list(map(lambda x: float(x[1]), pixels)))
 
     def train(learning_rate=0.03):
         with tf.GradientTape() as t:
-            current_loss = cost_function(gradient, x, y, bias, len(pixels))
+            current_loss = cost_function(gradient_tensor, x, y, bias, N)
             dBias = t.gradient(current_loss, [bias])[0]
 
         bias.assign_sub(learning_rate * dBias)
+        return current_loss
 
-    for epoch in range(200):
-        train()
+    losses = []
+    for epoch in range(70):
+        loss = train()
+        losses.append(loss.numpy())
 
     loss = cost_function(gradient, x, y, bias, len(pixels))
     

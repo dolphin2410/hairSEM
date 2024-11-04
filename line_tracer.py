@@ -52,6 +52,8 @@ class LineTracer:
             self.lock = True
             self.input_manager.unsubscribe(SubscriptionType.LEFT_CLICK, self.subscription_id)
 
+            print((self.start_point[0] - self.end_point[0])**2 + (self.start_point[1] - self.end_point[1])**2)
+
     def render_line(self):
         # This phrase catches two cases - one when two points are identical and one when both None
         if self.start_point == self.end_point:
@@ -83,9 +85,9 @@ class LineTracerManager:
             self.revert_last()
         elif input_ev == HairSEMEvents.ANALYZE:
             if len(self.old_tracers) == 0:
-                raise ValueError("AHH No Tracers!") # TODO this isn't the best way i guess?
-            sum, chunk_size, pixels = ml_model.analyze_original_image(self.old_tracers[0].linear_graph.perpendicular_gradient(), self.renderer.raw_image.copy())
-            print(sum, chunk_size, pixels)
+                raise ValueError("No tracers registered") # TODO this isn't the best way i guess?
+            sum, chunk_size, pixels, z = ml_model.analyze_original_image(self.old_tracers[0].linear_graph.perpendicular_gradient(), self.renderer.raw_image.copy())
+            print(sum, chunk_size, pixels, z)
 
     def cleanup(self):
         self.old_tracers = []

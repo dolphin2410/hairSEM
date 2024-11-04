@@ -17,6 +17,8 @@
 #   Portions of this code are licensed under the Apache License, Version 2.0. 
 #   See the LICENSE-APACHE file for details.
 
+import math
+import random
 import uuid
 from matplotlib import pyplot as plt
 import numpy as np
@@ -122,32 +124,61 @@ def train_model():
     plt.legend()
     plt.show()
 
-def get_predicted_mask(raw_image):
+def get_predicted_mask(images):
     model = tf.keras.models.load_model("models/epoch87-372f46e8-3f33-4a2d-b854-1e9b953c0cf9.keras")
 
-    new_image = mask_analysis.coerce_image(np.array(model.predict(np.array([raw_image]))[0]))
-    new_image = mask_analysis.flatten_predicted_mask(new_image)
+    predicts = np.array(model.predict(np.array(images)))
+    new_images = [mask_analysis.coerce_image(predicts[i]) for i in range(len(predicts))]
+    new_images = [mask_analysis.flatten_predicted_mask(new_image) for new_image in new_images]
 
-    return new_image
+    return new_images
+
+def random_shuffle_mask(raw_image):
+    for i in range(10):
+        random_x = random.randint(1, 126)
+        random_y = random.randint(1, 126)
+
+        for x_offset in range(3):
+            for y_offset in range(3):
+                raw_image[random_y + y_offset - 1, random_x + x_offset - 1] = 0
+    
+    return raw_image
 
 def analyze_original_image(target_gradient, image: np.ndarray):
-  total_loss = 0
-  chunk_size = 0
-  pixels_size = 0
-  y_size, x_size, _ = image.shape
-  for x in range(0, x_size, 128):
-    for y in range(0, y_size, 128):
-        if x + 128 > x_size or y + 128 > y_size:
-            continue
-      
-        cropped_image = image[y:y+128, x:x+128]
-        predicted_mask = get_predicted_mask(cropped_image)
-      
+    total_loss = 0
+    chunk_size = 0
+    pixels_size = 0
+    pixels = []
+    y_size, x_size, _ = image.shape
+
+    images = []
+    for x in range(0, x_size, 128):
+        for y in range(0, y_size, 128):
+            if x + 128 > x_size or y + 128 > y_size:
+                continue
+        
+            cropped_image = image[y:y+128, x:x+128]
+            cropped_image = random_shuffle_mask(cropped_image)
+
+            images.append(cropped_image)
+
+    images = get_predicted_mask(images)
+
+    for predicted_mask in images:
         chunks = mask_analysis.chunkify(predicted_mask)
 
         chunk_size += len(chunks)
         for chunk in chunks:
             pixels_size += len(chunk)
+            pixels.append(len(chunk))
             total_loss += mask_analysis.mask_linear_regression(target_gradient, chunk)
 
-  return total_loss, chunk_size, pixels_size
+        print("successfully processed an image")
+
+    average = pixels_size / chunk_size
+
+    sum = 0
+    for i in pixels:
+        sum += (i - average) ** 2
+
+    return total_loss, chunk_size, pixels_size, math.sqrt(sum / chunk_size)
