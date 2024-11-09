@@ -19,7 +19,6 @@ import os
 import cv2
 import numpy as np
 
-import mask_analysis
 from settings import LIMIT_DATASET_LOAD, TRAIN_TEST_RATIO
 
 BLUISHNESS_THRESHOLD = 25

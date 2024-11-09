@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "sem-analysis"
+version = "0.1.0"
+description = "Analyze Hair Damage with SEM Images"
+authors = ["dolphin2410"]
+license = "GPLv3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+tensorflow-examples = {git = "https://github.com/tensorflow/examples.git"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
