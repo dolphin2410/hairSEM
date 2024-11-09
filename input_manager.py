@@ -16,6 +16,7 @@
 
 import cv2
 from enum import Enum
+import uuid
 
 class HairSEMEvents(Enum):
     PASS = 0
@@ -30,29 +31,44 @@ class SubscriptionType(Enum):
     LEFT_CLICK = 0
 
 class InputManager:
+    """입력 관리자"""
+
     def __init__(self):
         self.cursor_pos = None
         self.lclick_watchers = []
         self.current_event = HairSEMEvents.PASS
 
     def on_mouse(self, event, x, y, flags, param):
+        """cv2에게 전달할 마우스 입력 콜백"""
+
+        # 커서의 위치
         if event == cv2.EVENT_MOUSEMOVE:
             self.cursor_pos = (x, y)
 
+        # 마우스 우클릭 처리
         if event == cv2.EVENT_LBUTTONDOWN:
+
+            # 우클릭 리스너 처리
             for watcher in self.lclick_watchers:
                 watcher(x, y)
 
     def subscribe(self, subscription_type: SubscriptionType, f):
+        """특정 이벤트의 리스너를 등록한다 그리고 등록된 UUID를 반환한다"""
+
         if subscription_type == SubscriptionType.LEFT_CLICK:
-            self.lclick_watchers.append(f)
-            return len(self.lclick_watchers) - 1
+            uniqueId = uuid.uuid4()
+            self.lclick_watchers[uniqueId] = f
+            return uniqueId
     
-    def unsubscribe(self, subscription_type: SubscriptionType, idx):
+    def unsubscribe(self, subscription_type: SubscriptionType, uniqueId):
+        """특정 이벤트의 리스너를 등록 해제한다"""
+
         if subscription_type == SubscriptionType.LEFT_CLICK:
-            self.lclick_watchers.pop(idx)
+            del self.lclick_watchers[uniqueId]
 
     def update(self):
+        """키보드 입력을 받아서 이벤트를 호출한다"""
+
         key = cv2.waitKey(1)
 
         if key & 0xFF == ord('q'):

@@ -32,6 +32,8 @@ test_images, train_images, test_masks, train_masks = load_dataset()
 
 sample_image, sample_mask = train_images[2], train_masks[2]
 
+# Source code from Tensorflow docs - start
+
 class DisplayCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         clear_output(wait=True)
@@ -55,7 +57,7 @@ class DisplayCallback(tf.keras.callbacks.Callback):
 
         print(f'\nSample Prediction after epoch {epoch + 1}\n')
 
-def unet_model(output_channels = 3): # output_channels : number of classes
+def unet_model(output_channels = 3):
     base_model = tf.keras.applications.MobileNetV2(input_shape=[128, 128, 3], include_top=False)
 
     # Use the activations of these layers
@@ -103,28 +105,23 @@ def unet_model(output_channels = 3): # output_channels : number of classes
 
     return tf.keras.Model(inputs=inputs, outputs=x)
 
+# end
+
 def train_model():
-    global model
+    """모델을 학습시켜서 반환"""
+
     model = unet_model()
     model.compile(optimizer='adam',
                 loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
 
-    model_history = model.fit(train_images, train_masks, epochs=200, batch_size=64, validation_data=(test_images, test_masks), callbacks=[DisplayCallback()])
-    loss = model_history.history['loss']
-    val_loss = model_history.history['val_loss']
-
-    plt.figure()
-    plt.plot(model_history.epoch, loss, 'r', label='Training loss')
-    plt.plot(model_history.epoch, val_loss, 'bo', label='Validation loss')
-    plt.title('Training and Validation Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss Value')
-    plt.ylim([0, 1])
-    plt.legend()
-    plt.show()
+    model.fit(train_images, train_masks, epochs=200, batch_size=64, validation_data=(test_images, test_masks), callbacks=[DisplayCallback()])
+    return model
 
 def get_predicted_mask(images):
+    """사전 학습된 모델을 이용해 예측 마스크 반환"""
+
+    # 사전 학습된 모델
     model = tf.keras.models.load_model("models/epoch87-372f46e8-3f33-4a2d-b854-1e9b953c0cf9.keras")
 
     predicts = np.array(model.predict(np.array(images)))
@@ -134,6 +131,8 @@ def get_predicted_mask(images):
     return new_images
 
 def random_shuffle_mask(raw_image):
+    """무작위로 3x3 구멍을 만든다"""
+
     for i in range(10):
         random_x = random.randint(1, 126)
         random_y = random.randint(1, 126)
@@ -145,12 +144,15 @@ def random_shuffle_mask(raw_image):
     return raw_image
 
 def analyze_original_image(target_gradient, image: np.ndarray):
+    """원본 이미지로부터 분석"""
+
     total_loss = 0
-    chunk_size = 0
-    pixels_size = 0
+    n_chunks = 0
+    n_pixels = 0
     pixels = []
     y_size, x_size, _ = image.shape
 
+    # 이미지를 128x128로 분할
     images = []
     for x in range(0, x_size, 128):
         for y in range(0, y_size, 128):
@@ -162,23 +164,28 @@ def analyze_original_image(target_gradient, image: np.ndarray):
 
             images.append(cropped_image)
 
+    # 각 분할된 이미지 별로 예측 마스크 추출
     images = get_predicted_mask(images)
 
     for predicted_mask in images:
+        # 128x128 이미지 별로 군집 추출
         chunks = mask_analysis.chunkify(predicted_mask)
 
-        chunk_size += len(chunks)
+        # 분석
+        n_chunks += len(chunks)
         for chunk in chunks:
-            pixels_size += len(chunk)
+            n_pixels += len(chunk)
             pixels.append(len(chunk))
             total_loss += mask_analysis.mask_linear_regression(target_gradient, chunk)
 
         print("successfully processed an image")
 
-    average = pixels_size / chunk_size
+    # 군집의 평균 픽셀 수 구하기
+    pixels_per_chunk = n_pixels / n_chunks
 
+    # 표준편차를 구하기 위한 코드
     sum = 0
     for i in pixels:
-        sum += (i - average) ** 2
+        sum += (i - pixels_per_chunk) ** 2
 
-    return total_loss, chunk_size, pixels_size, math.sqrt(sum / chunk_size)
+    return total_loss, n_chunks, n_pixels, math.sqrt(sum / n_chunks)

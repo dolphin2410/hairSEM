@@ -19,6 +19,8 @@ from settings import X_SIZE, Y_SIZE
 
 
 class LinearGraph:
+    """cv2 좌표계 상에서 선형 그래프를 다루기 위한 클래스"""
+
     def __init__(self, p1, p2):
         if p1[0] == p2[0] and p1[1] == p2[1]:
             raise ValueError("The given two points are identical")
@@ -32,7 +34,7 @@ class LinearGraph:
             self.gradient = (p1[1] - p2[1]) / (p1[0] - p2[0])
 
     def linear_graph_coeffs(self):
-        """this function takes two points as an input and returns a, b values of the equation ax + by = 1"""
+        """2개의 점을 입력으로 받아 ax + by = 1 직선에서 a, b 값을 반환한다"""
         
         x1, y1 = self.p1
         x2, y2 = self.p2
@@ -43,7 +45,7 @@ class LinearGraph:
         return (a, b)
     
     def boundary_intercepts(self):
-        """Returns the intercepts of the LinearGraph within the given boundary as points"""
+        """이 그래프와 화면 가장자리의 교점을 반환"""
 
         a, b = self.linear_graph_coeffs()
         intercepts = []
@@ -61,8 +63,10 @@ class LinearGraph:
         return list(set(intercepts))
 
     def perpendicular_gradient(self):
+        """이 직선과 수직한 직선을 반환한다"""
+
         if self.gradient == 0:
-            return 1000 # i wish this would be enough?
+            return 1000  # 근사
         else:
             return - 1.0 / self.gradient
         

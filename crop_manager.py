@@ -23,6 +23,8 @@ import uuid
 import cv2
 
 class CropManager:
+    """128x128 crop을 위한 클래스"""
+
     def __init__(self, renderer: ImageRenderer, input_manager: InputManager):
         self.renderer = renderer
         self.input_manager = input_manager
@@ -33,15 +35,25 @@ class CropManager:
         self.input_manager.subscribe(SubscriptionType.LEFT_CLICK, self.on_click)
 
     def handle_inputs(self):
+        """호출된 이벤트 처리"""
+
         input_ev = self.input_manager.current_event
+
+        # CROP 진행
+
         if input_ev == HairSEMEvents.SAVE_CROPPED_IMAGE:
-            self.save([self.renderer.raw_image.copy(), self.mask_image.copy()])
+            self.save([self.renderer.raw_image.copy(), self.renderer.raw_mask_image.copy()])
             self.input_manager.current_event == HairSEMEvents.EXIT
 
     def cleanup(self):
+        """초기 상태로 초기화"""
+
         self.start_point = None
 
     def update(self):
+        """업데이트(tick)"""
+
+        # 호출된 이벤트 처리
         self.handle_inputs()
 
         if self.start_point is None:
@@ -50,7 +62,7 @@ class CropManager:
         self.render_box()
     
     def on_click(self, x, y):
-        """initializes the points when clicked"""
+        """좌클릭 콜백"""
 
         if self.lock:
             return
@@ -61,6 +73,8 @@ class CropManager:
             self.lock = True
 
     def render_box(self):
+        """crop 영역을 파란 상자로 렌더링"""
+
         start_x, start_y = self.start_point
 
         p2 = start_x, start_y + CROP_IMAGE_SIZE
@@ -73,12 +87,22 @@ class CropManager:
         self.renderer.push_task(RenderTasks.DRAW_LINE, [p4, self.start_point])
 
     def save(self, images):
+        """저장한다"""
+
+        # 딱히 네모 상자를 정하지 않았다면, 랜덤하게 500회 수행
         if self.start_point is None:
             for i in range(500):
+
+                # 랜덤한 위치 선정
                 x_rand = int(random.random() * (X_SIZE - CROP_IMAGE_SIZE - 1))
                 y_rand = int(random.random() * (Y_SIZE - CROP_IMAGE_SIZE - 1))
                 self.start_point = x_rand, y_rand
+
+                # self.start_point 설정 후 재귀
                 self.save(images)
+            
+            self.start_point = None
+            return
 
         x, y = self.start_point
         cropped = []
@@ -89,9 +113,8 @@ class CropManager:
                 row = image[y + delta_y][x:x + CROP_IMAGE_SIZE]
                 cropped_image.append(row)
             cropped.append(np.array(cropped_image))
-    
+
+        # UUID 이름으로 crop한 파일 저장
         uuid_string = uuid.uuid4()
         cv2.imwrite(f"sem_cropped_images/images/{uuid_string}.jpg", cropped[0])
         cv2.imwrite(f"sem_cropped_images/segmentation-masks/{uuid_string}.jpg", cropped[1])
-        
-        return self.start_point
