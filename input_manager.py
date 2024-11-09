@@ -35,7 +35,7 @@ class InputManager:
 
     def __init__(self):
         self.cursor_pos = None
-        self.lclick_watchers = []
+        self.lclick_watchers = {}
         self.current_event = HairSEMEvents.PASS
 
     def on_mouse(self, event, x, y, flags, param):
@@ -49,7 +49,7 @@ class InputManager:
         if event == cv2.EVENT_LBUTTONDOWN:
 
             # 우클릭 리스너 처리
-            for watcher in self.lclick_watchers:
+            for watcher in self.lclick_watchers.values():
                 watcher(x, y)
 
     def subscribe(self, subscription_type: SubscriptionType, f):
