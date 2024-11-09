@@ -122,7 +122,7 @@ def get_predicted_mask(images):
     """사전 학습된 모델을 이용해 예측 마스크 반환"""
 
     # 사전 학습된 모델
-    model = tf.keras.models.load_model("models/epoch87-372f46e8-3f33-4a2d-b854-1e9b953c0cf9.keras")
+    model = tf.keras.models.load_model("sem_analysis.keras")
 
     predicts = np.array(model.predict(np.array(images)))
     new_images = [mask_analysis.coerce_image(predicts[i]) for i in range(len(predicts))]

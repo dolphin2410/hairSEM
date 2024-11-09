@@ -22,8 +22,11 @@ from settings import X_SIZE, Y_SIZE
 
 # 이미지 불러오기
 
-raw_image_data = cv2.imread("./sem_images/images/SEM_C_PRESSURE.jpg")  # SEM 이미지 불러오기
-raw_mask_data = cv2.imread("./sem_images/segmentation-masks/SEM_C_PRESSURE.jpg")  # SEM 마스크 이미지 불러오기
+path_raw_image = input("SEM 이미지 경로? ")  # "./sem_images/images/SEM_C_PRESSURE.jpg"
+path_mask_data = input("SEM 마스크 이미지 경로? ")  # "./sem_images/segmentation-masks/SEM_C_PRESSURE.jpg"
+
+raw_image_data = cv2.imread(path_raw_image)  # SEM 이미지 불러오기
+raw_mask_data = cv2.imread(path_mask_data)  # SEM 마스크 이미지 불러오기
 
 resized_image_data = cv2.resize(raw_image_data, (X_SIZE, Y_SIZE))
 resized_mask_data = cv2.resize(raw_mask_data, (X_SIZE, Y_SIZE))
