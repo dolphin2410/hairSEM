@@ -80,6 +80,7 @@ def mask_linear_regression(gradient, pixels):
 
     # 학습 - 경사하강
 
+    @tf.function
     def train(learning_rate=0.03):
         with tf.GradientTape() as t:
             current_loss = cost_function(gradient_tensor, x, y, bias, N)
@@ -89,7 +90,7 @@ def mask_linear_regression(gradient, pixels):
         return current_loss
 
     # 300회 반복 학습
-    for epoch in range(300):
+    for epoch in range(100):
         loss = train()
 
     loss = cost_function(gradient, x, y, bias, len(pixels))

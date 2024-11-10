@@ -121,6 +121,7 @@ class LineTracerManager:
                 raise ValueError("No tracers registered")
             
             # S.SE, 군집 수, 픽셀 수, 표준편차를 출력
+            print("running the program")
             sum, n_chunks, n_pixels, std_dev = ml_model.analyze_original_image(self.old_tracers[-1].linear_graph.perpendicular_gradient(), self.renderer.raw_image.copy())
             print(sum, n_chunks, n_pixels, std_dev)
 

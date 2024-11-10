@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from threading import Lock
 import cv2
 from enum import Enum
 import uuid
@@ -47,9 +48,11 @@ class InputManager:
 
         # 마우스 우클릭 처리
         if event == cv2.EVENT_LBUTTONDOWN:
+            
+            watchers = list(self.lclick_watchers.values())  # Retrieve snapshot
 
             # 우클릭 리스너 처리
-            for watcher in self.lclick_watchers.values():
+            for watcher in watchers: 
                 watcher(x, y)
 
     def subscribe(self, subscription_type: SubscriptionType, f):
@@ -64,13 +67,11 @@ class InputManager:
         """특정 이벤트의 리스너를 등록 해제한다"""
 
         if subscription_type == SubscriptionType.LEFT_CLICK:
-            del self.lclick_watchers[uniqueId]
+            self.lclick_watchers.pop(uniqueId, None)
 
     def update(self):
         """키보드 입력을 받아서 이벤트를 호출한다"""
-
         key = cv2.waitKey(1)
-
         if key & 0xFF == ord('q'):
             self.current_event = HairSEMEvents.EXIT
         elif key & 0xFF == 27:
