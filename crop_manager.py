@@ -116,5 +116,6 @@ class CropManager:
 
         # UUID 이름으로 crop한 파일 저장
         uuid_string = uuid.uuid4()
+        print(uuid_string)
         cv2.imwrite(f"sem_cropped_images/images/{uuid_string}.jpg", cropped[0])
         cv2.imwrite(f"sem_cropped_images/segmentation-masks/{uuid_string}.jpg", cropped[1])
